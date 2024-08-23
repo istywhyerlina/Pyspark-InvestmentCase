@@ -4,8 +4,7 @@
 
 ERD:
 
-![Startup Public Image](https://sekolahdata-assets.s3.ap-southeast-1.amazonaws.com/notebook-images/mde-data-ingestion-spark/startup_-_public.png)
-
+<img title="ERD" alt="Alt text" src="https://sekolahdata-assets.s3.ap-southeast-1.amazonaws.com/notebook-images/mde-data-ingestion-spark/startup_-_public.png">
 
 ### Company 
 contains detailed information about various startup company locaation
