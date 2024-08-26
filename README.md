@@ -10,8 +10,10 @@
 ## Usage
 1. Access the terminal of the container: `docker exec -it pyspark_container2 /bin/bash `
 2. Navigate to the project directory: `/home/jovyan/work`
-3. Run the pipeline script: `spark-submit your_script.py`
+3. Run the pipeline script:
+   - if you use pandas: `pyton your_script.py`
+    - if you use pyspark `spark-submit your_script.py`
 
 alternative:
-1. Access the Jupyter Notebook server at:: [localhost:8888](http://localhost:8888/)
+1. Access the Jupyter Notebook server at:: [localhost:8888](http://localhost:8888/) (if you use pyspark)
 2. Run your_notebook.ipynb
