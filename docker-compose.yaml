@@ -43,8 +43,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=cobapassword
     volumes:
-      - ./target_db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
-      - ./target_db/etl_log.sql:/docker-entrypoint-initdb.d/02-etl_log.sql
+      - ./traget_db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./traget_db/etl_log.sql:/docker-entrypoint-initdb.d/02-etl_log.sql
     ports:
       - 5435:5432 
     networks:
