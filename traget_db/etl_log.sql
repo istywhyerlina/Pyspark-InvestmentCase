@@ -1,3 +1,16 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c7373943834deca7f230e253a1453d5583abc21e80959f50fa4dbe0b3a4d5ca0
-size 412
+\c etl_log;
+
+create extension if not exists "uuid-ossp";
+
+CREATE TABLE etl_log (
+	id uuid NOT NULL DEFAULT uuid_generate_v4(),
+	step varchar(255) NULL,
+	process varchar(255) NULL,
+	status varchar(255) NULL,
+	"source" varchar(255) NULL,
+	table_name varchar(255) NULL,
+	error_msg text NULL,
+	etl_date timestamp NULL,
+	create_at timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT etl_log_pkey PRIMARY KEY (id)
+);

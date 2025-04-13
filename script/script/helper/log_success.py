@@ -1,47 +1,57 @@
-from datetime import datetime
-from dotenv import load_dotenv
-import pandas as pd
+import pyspark
+from importlib import reload
+
+from pyspark.sql import SparkSession
 import os
-from sqlalchemy import create_engine
+import pandas as pd
+import sys
+sys.path.insert(0, '/home/jovyan/work')
+from script.helper.db_conn import db_connection
+from datetime import datetime
+from datetime import timezone
 
-
-load_dotenv()
+from script.helper.conn_prop import connection_properties
+from script.helper.init_spark import initiate_spark
+import logging
+import pandas as pd
 
 def etl_log(log_msg: dict):
     """
     This function is used to save the log message to the database.
     """
-    log_database = os.getenv("LOG_POSTGRES_DB")
-    log_host = "localhost"
-    log_user = os.getenv("LOG_POSTGRES_USER")
-    log_password = os.getenv("LOG_POSTGRES_PASSWORD")
-    log_port = os.getenv("LOG_POSTGRES_PORT")
-    
+
+
     try:
         # create connection to database
-        conn = create_engine(f"postgresql://{log_user}:{log_password}@{log_host}:{log_port}/{log_database}")
+        spark = initiate_spark()
+        _,_,_,log_url = db_connection()
+        _,_,_,cp_log=connection_properties()
         
         # convert dictionary to dataframe
         df_log = pd.DataFrame([log_msg])
+        df_log=spark.createDataFrame(data=df_log)
 
         #extract data log
-        df_log.to_sql(name = "etl_log",  # Your log table
-                        con = conn,
-                        if_exists = "append",
-                        index = False)
+        df_log.write.jdbc(url=log_url,table="etl_log",mode="append",properties=cp_log)
+
     except Exception as e:
         print("Can't save your log message. Cause: ", str(e))
 
 
-def log_success(step,component, table_name):
+def log_success(step,process, source, table_name):
     log_msg = {
-            "step" : step,
-            "component" : component, 
-            "status": "success",
-            "table_name": table_name,
-            "etl_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # Current timestamp
+        "step" : step,
+        "process" : process, 
+        "status" : "success", 
+        "source": source,
+        "table_name": table_name,
+        "etl_date": datetime.now(timezone.utc).astimezone()  # Current timestamp
         }
     etl_log(log_msg)
+
+
+
+
 
 
 
