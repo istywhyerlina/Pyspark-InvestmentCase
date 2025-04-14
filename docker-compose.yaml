@@ -46,6 +46,7 @@ services:
       - ./traget_db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - ./traget_db/etl_log.sql:/docker-entrypoint-initdb.d/02-etl_log.sql
       - ./traget_db/staging.sql:/docker-entrypoint-initdb.d/03-staging.sql
+      - ./traget_db/warehouse.sql:/docker-entrypoint-initdb.d/04-warehouse.sql
     ports:
       - 5435:5432 
     networks:
