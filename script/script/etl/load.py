@@ -29,12 +29,14 @@ def load_stg(data,table_name:str,step="Data Staging",process="Load",spark=spark,
 
         print(f"===== Get only new data =====")
         primary_key={"people":"people_id",'relationships':'relationship_id','acquisition':'acquisition_id','company':'office_id','funds':'fund_id','investments':'investment_id','ipos':'ipo_id','funding_rounds':'funding_round_id'}
-        step="Data Staging"
         process="Check New Data"
         data_in_stg=extract_db_stg(table_name,step,process)
         #data_in_stg.show()
         #data.show()
+        
         new_data=data.join(data_in_stg, primary_key[table_name],"leftanti")
+        
+        
         #new_data.show()
         
         print(f"===== Already got only New Data  =====")
@@ -44,6 +46,7 @@ def load_stg(data,table_name:str,step="Data Staging",process="Load",spark=spark,
         _,stg_url,_,_ = db_connection()
         
         new_data.write.jdbc(url=stg_url,table=table_name,mode="append",properties=cp_stg)
+        process="Load"
         log_success(step,process,source,table_name)
         print(f"===== Success Loading {table_name} new data =====")
     except Exception as e:
