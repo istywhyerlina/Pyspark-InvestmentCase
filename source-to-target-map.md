@@ -137,7 +137,7 @@ target : table fct_ipos
 ### Fact Investments Table
 source : file investments, dim_company, fct_ipos
 
-target : table transactions
+target : table Investments
 
 | Source Column                 | Target Column      | Transformation                                                   |
 |--------------------------------|-------------------|-----------------------------------------------------------------|

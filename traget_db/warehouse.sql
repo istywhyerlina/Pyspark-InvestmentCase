@@ -1,4 +1,119 @@
 \c warehouse;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE public.dim_term_code (
+    term_code_id  DEFAULT uuid_generate_v4() NOT NULL,
+    term_code character varying(255));
+  
+CREATE TABLE public.dim_stock_symbol (
+    stock_symbol_id  DEFAULT uuid_generate_v4() NOT NULL,
+    stock_symbol character varying(255));
+  
+
+CREATE TABLE public.dim_company (
+    company_id DEFAULT uuid_generate_v4() NOT NULL,
+    company_nk_id integer NOT NULL,
+    object_id character varying(255),
+    description text,
+    region character varying(255),
+    address1 text,
+    address2 text,
+    city character varying(255),
+    zip_code character varying(200),
+    state_code character varying(255),
+    country_code character varying(255),
+    latitude numeric(9,6),
+    longitude numeric(9,6),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_acquisition (
+    acquisition_id DEFAULT uuid_generate_v4() NOT NULL,
+    acquisition_nk_id integer NOT NULL,
+    acquiring_object_id uuid,
+    acquired_object_id uuid,
+    term_code_id uuid,
+    price_amount numeric(15,2),
+    price_currency_code character varying(3),
+    acquired_at uuid,
+    source_url text,
+    source_description text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_funds (
+    fund_id DEFAULT uuid_generate_v4() NOT NULL,
+    fund_nk_id character varying(255) NOT NULL,
+    object_id uuid,
+    name character varying(255),
+    funded_at uuid,
+    raised_amount numeric(15,2),
+    raised_currency_code character varying(3),
+    source_url text,
+    source_description text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_funding_rounds (
+    funding_round_id DEFAULT uuid_generate_v4() NOT NULL,
+    funding_round_nk_id integer NOT NULL,
+    object_id uuid,
+    funded_at uuid,
+    funding_round_type character varying(255),
+    funding_round_code character varying(255),
+    raised_amount_usd numeric(15,2),
+    raised_amount numeric(15,2),
+    raised_currency_code character varying(255),
+    pre_money_valuation_usd numeric(15,2),
+    pre_money_valuation numeric(15,2),
+    pre_money_currency_code character varying(255),
+    post_money_valuation_usd numeric(15,2),
+    post_money_valuation numeric(15,2),
+    post_money_currency_code character varying(255),
+    participants text,
+    is_first_round boolean,
+    is_last_round boolean,
+    source_url text,
+    source_description text,
+    created_by character varying(255),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_investments (
+    investment_id DEFAULT uuid_generate_v4() NOT NULL,  
+    investment_nk_id integer NOT NULL,
+    funding_round_id uuid,
+    funded_object_id uuid,
+    investor_object_id uuid,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_ipos (
+    ipo_id DEFAULT uuid_generate_v4() NOT NULL,
+    ipo_nk_id character varying(255) NOT NULL,
+    object_id uuid,
+    valuation_amount numeric(15,2),
+    valuation_currency_code character varying(3),
+    raised_amount numeric(15,2),
+    raised_currency_code character varying(3),
+    public_at uuid,
+    stock_symbol uuid,
+    source_url text,
+    source_description text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
 
 DROP TABLE if exists dim_date;
 
