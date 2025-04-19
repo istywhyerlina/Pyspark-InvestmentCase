@@ -1,7 +1,8 @@
 import pyspark
 from importlib import reload
-
+import pyspark
 from pyspark.sql import SparkSession
+
 import os
 import pandas as pd
 import sys
@@ -44,6 +45,37 @@ def load_stg(data,table_name:str,step="Data Staging",process="Load",spark=spark,
         print(f"===== Start Loading {table_name} new data =====")
         _,cp_stg,_,_=connection_properties()
         _,stg_url,_,_ = db_connection()
+        
+        new_data.write.jdbc(url=stg_url,table=table_name,mode="append",properties=cp_stg)
+        process="Load"
+        log_success(step,process,source,table_name)
+        print(f"===== Success Loading {table_name} new data =====")
+    except Exception as e:
+        print(f"====== Failed to Load Data {table_name} ====== \n {e}")
+        log_error(step,process,source,table_name,str(e))
+
+
+def load_dwh(data,table_name:str,step="Data Warehouse",process="Load",spark=spark,source=""):
+    try:
+        _,_,cp_stg,_=connection_properties()
+        _,_,stg_url,_= db_connection()
+
+        # Truncate the target table (ensure data integrity by removing old records before loading new data)
+        truncate_sql = f"TRUNCATE TABLE {table_name} CASCADE"
+        pyspark.pandas.read_sql(truncate_sql,stg_url)
+        # Use the jdbc connection to execute the SQL truncate statement
+        truncate_df = pyspark.sql.SparkSession.builder.getOrCreate().read \
+            .format("jdbc") \
+            .option("url", stg_url) \
+            .option("dbtable", f"({truncate_sql}) AS trunc_query") \
+            .option("user", "postgres") \
+            .option("password", "cobapassword") \
+            .load()
+
+        log_success(f"===== Truncated table {table_name} successfully =====")      
+
+        print(f"===== Start Loading {table_name} new data =====")
+ 
         
         new_data.write.jdbc(url=stg_url,table=table_name,mode="append",properties=cp_stg)
         process="Load"

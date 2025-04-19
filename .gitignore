@@ -5,3 +5,4 @@ creds/
 **/.ipynb_checkpoints/
 **/script/.env
 .gitattributes
+docker-compose copy.yaml

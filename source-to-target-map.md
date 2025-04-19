@@ -46,6 +46,23 @@ target : table dim_company
 | `updated_at`    | `updated_at`    |---------------|
 
 
+
+### Dim People
+source : file people
+
+target : table dim_people
+
+| Source Column                 | Target Column      | Transformation                                                   |
+|--------------------------------|-------------------|-----------------------------------------------------------------|
+| uuid generated             | `people_id`                     | -                                                     |
+| `people_id`            | `people_nk_id`                  | -                                                     |
+| `first_name`            | `first_name`                  | -                                                     |
+| `last_name`            | `last_name`                  | -                                                     |
+| `birthplace`            | `birthplace`                  | -                                                     |
+| `affiliation_name`            | `affiliation_name`                  | -                                                     |
+| `created_at`               | `created_at`                     | -                                                  |
+| `updated_at`               | `updated_at`                     | -                                                  |
+
 ### Fact Acquisition Table
 source : table acquisition, dim_term_code, dim_company, dim_date
 
@@ -146,5 +163,26 @@ target : table fct_investments
 | `funding_round_id`, `funding_round_id`| `funding_round_id`|lookup to funding_round_id in fct_funding_rounds based on funding_round_nk_id|
 | `funded_object_id` , `company_id`            | `funded_object_id` | lookup to company_id in dim_company based on company_nk_id |
 | `investor_object_id` , `company_id`            | `investor_object_id` | lookup to company_id in dim_company based on company_nk_id |
+| `created_at`               | `created_at`                     | -                                                  |
+| `updated_at`               | `updated_at`                     | -                                                  |
+
+
+### Fact Person_Relationship Table
+source : file relationship, dim_people, people (staging), dim_company
+
+target : table fct_person_relationship
+
+| Source Column                 | Target Column      | Transformation                                                   |
+|--------------------------------|-------------------|-----------------------------------------------------------------|
+| uuid generated             | `person_relationship_id`                     | -                                                     |
+| `relationship_id`            | `relationship_nk_id`                  | -                                                     |
+| `person_id`            | `person_id`                  | -                                                     |
+| `person_id`, `person_object_id`| `person_id`|lookup to person_id in fct_people based on person_object_id|
+| `relationship_object_id` , `company_id`            | `relationship_object_id` | lookup to company_id in dim_company based on company_nk_id |
+| `start_at`, `time_id`          | `start_at`          | lookup to time_id based on start_at             |
+| `end_at`, `time_id`          | `end_at`          | lookup to time_id based on end_at             |
+| `is_past`            | `is_past`                  | Convert To Boolean                                                    |
+`sequence`                  | -                                             |
+`title`                  | -                                                 |
 | `created_at`               | `created_at`                     | -                                                  |
 | `updated_at`               | `updated_at`                     | -                                                  |

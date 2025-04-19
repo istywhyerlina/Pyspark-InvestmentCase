@@ -1,125 +1,10 @@
 \c warehouse;
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-CREATE TABLE public.dim_term_code (
-    term_code_id  DEFAULT uuid_generate_v4() NOT NULL,
-    term_code character varying(255));
-  
-CREATE TABLE public.dim_stock_symbol (
-    stock_symbol_id  DEFAULT uuid_generate_v4() NOT NULL,
-    stock_symbol character varying(255));
-  
-
-CREATE TABLE public.dim_company (
-    company_id DEFAULT uuid_generate_v4() NOT NULL,
-    company_nk_id integer NOT NULL,
-    object_id character varying(255),
-    description text,
-    region character varying(255),
-    address1 text,
-    address2 text,
-    city character varying(255),
-    zip_code character varying(200),
-    state_code character varying(255),
-    country_code character varying(255),
-    latitude numeric(9,6),
-    longitude numeric(9,6),
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-CREATE TABLE public.fct_acquisition (
-    acquisition_id DEFAULT uuid_generate_v4() NOT NULL,
-    acquisition_nk_id integer NOT NULL,
-    acquiring_object_id uuid,
-    acquired_object_id uuid,
-    term_code_id uuid,
-    price_amount numeric(15,2),
-    price_currency_code character varying(3),
-    acquired_at uuid,
-    source_url text,
-    source_description text,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-CREATE TABLE public.fct_funds (
-    fund_id DEFAULT uuid_generate_v4() NOT NULL,
-    fund_nk_id character varying(255) NOT NULL,
-    object_id uuid,
-    name character varying(255),
-    funded_at uuid,
-    raised_amount numeric(15,2),
-    raised_currency_code character varying(3),
-    source_url text,
-    source_description text,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-CREATE TABLE public.fct_funding_rounds (
-    funding_round_id DEFAULT uuid_generate_v4() NOT NULL,
-    funding_round_nk_id integer NOT NULL,
-    object_id uuid,
-    funded_at uuid,
-    funding_round_type character varying(255),
-    funding_round_code character varying(255),
-    raised_amount_usd numeric(15,2),
-    raised_amount numeric(15,2),
-    raised_currency_code character varying(255),
-    pre_money_valuation_usd numeric(15,2),
-    pre_money_valuation numeric(15,2),
-    pre_money_currency_code character varying(255),
-    post_money_valuation_usd numeric(15,2),
-    post_money_valuation numeric(15,2),
-    post_money_currency_code character varying(255),
-    participants text,
-    is_first_round boolean,
-    is_last_round boolean,
-    source_url text,
-    source_description text,
-    created_by character varying(255),
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-CREATE TABLE public.fct_investments (
-    investment_id DEFAULT uuid_generate_v4() NOT NULL,  
-    investment_nk_id integer NOT NULL,
-    funding_round_id uuid,
-    funded_object_id uuid,
-    investor_object_id uuid,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-CREATE TABLE public.fct_ipos (
-    ipo_id DEFAULT uuid_generate_v4() NOT NULL,
-    ipo_nk_id character varying(255) NOT NULL,
-    object_id uuid,
-    valuation_amount numeric(15,2),
-    valuation_currency_code character varying(3),
-    raised_amount numeric(15,2),
-    raised_currency_code character varying(3),
-    public_at uuid,
-    stock_symbol uuid,
-    source_url text,
-    source_description text,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
 
 DROP TABLE if exists dim_date;
 
 CREATE TABLE dim_date
 (
-  date_dim_id              INT NOT NULL,
+  date_id              INT NOT NULL,
   date_actual              DATE NOT NULL,
   epoch                    BIGINT NOT NULL,
   day_suffix               VARCHAR(4) NOT NULL,
@@ -150,7 +35,7 @@ CREATE TABLE dim_date
   weekend_indr             BOOLEAN NOT NULL
 );
 
-ALTER TABLE public.dim_date ADD CONSTRAINT dim_date_date_dim_id_pk PRIMARY KEY (date_dim_id);
+ALTER TABLE public.dim_date ADD CONSTRAINT dim_date_date_id_pk PRIMARY KEY (date_id);
 
 CREATE INDEX dim_date_date_actual_idx
   ON dim_date(date_actual);
@@ -158,7 +43,7 @@ CREATE INDEX dim_date_date_actual_idx
 COMMIT;
 
 INSERT INTO dim_date
-SELECT TO_CHAR(datum, 'yyyymmdd')::INT AS date_dim_id,
+SELECT TO_CHAR(datum, 'yyyymmdd')::INT AS date_id,
        datum AS date_actual,
        EXTRACT(EPOCH FROM datum) AS epoch,
        TO_CHAR(datum, 'fmDDth') AS day_suffix,
@@ -1656,3 +1541,144 @@ INSERT INTO dim_time (time_id, time_actual, hours_24, hours_12, hour_minutes, da
 INSERT INTO dim_time (time_id, time_actual, hours_24, hours_12, hour_minutes, day_minutes, day_time_name, day_night) VALUES ('2357', '23:57:00', '23', '11', '57', '1437', 'PM', 'Night');
 INSERT INTO dim_time (time_id, time_actual, hours_24, hours_12, hour_minutes, day_minutes, day_time_name, day_night) VALUES ('2358', '23:58:00', '23', '11', '58', '1438', 'PM', 'Night');
 INSERT INTO dim_time (time_id, time_actual, hours_24, hours_12, hour_minutes, day_minutes, day_time_name, day_night) VALUES ('2359', '23:59:00', '23', '11', '59', '1439', 'PM', 'Night');
+
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE public.dim_term_code (
+    term_code_id  uuid DEFAULT uuid_generate_v4() NOT NULL,
+    term_code character varying(255));
+  
+CREATE TABLE public.dim_stock_symbol (
+    stock_symbol_id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    stock_symbol character varying(255));
+  
+
+CREATE TABLE public.dim_company (
+    company_id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    company_nk_id integer NOT NULL,
+    object_id character varying(255),
+    description text,
+    region character varying(255),
+    address1 text,
+    address2 text,
+    city character varying(255),
+    zip_code character varying(200),
+    state_code character varying(255),
+    country_code character varying(255),
+    latitude numeric(9,6),
+    longitude numeric(9,6),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE public.dim_person (
+    person_id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    person_nk_id integer NOT NULL,
+    first_name character varying(255),
+    last_name character varying(255),
+    birthplace character varying(255),
+    affiliation_name character varying(255)
+);
+
+
+
+CREATE TABLE public.fct_acquisition (
+    acquisition_id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    acquisition_nk_id integer NOT NULL,
+    acquiring_object_id uuid,
+    acquired_object_id uuid,
+    term_code_id uuid,
+    price_amount numeric(15,2),
+    price_currency_code character varying(3),
+    acquired_at uuid,
+    source_url text,
+    source_description text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_funds (
+    fund_id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    fund_nk_id character varying(255) NOT NULL,
+    object_id uuid,
+    name character varying(255),
+    funded_at uuid,
+    raised_amount numeric(15,2),
+    raised_currency_code character varying(3),
+    source_url text,
+    source_description text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_funding_rounds (
+    funding_round_id  uuid DEFAULT uuid_generate_v4() NOT NULL,
+    funding_round_nk_id integer NOT NULL,
+    object_id uuid,
+    funded_at uuid,
+    funding_round_type character varying(255),
+    funding_round_code character varying(255),
+    raised_amount_usd numeric(15,2),
+    raised_amount numeric(15,2),
+    raised_currency_code character varying(255),
+    pre_money_valuation_usd numeric(15,2),
+    pre_money_valuation numeric(15,2),
+    pre_money_currency_code character varying(255),
+    post_money_valuation_usd numeric(15,2),
+    post_money_valuation numeric(15,2),
+    post_money_currency_code character varying(255),
+    participants text,
+    is_first_round boolean,
+    is_last_round boolean,
+    source_url text,
+    source_description text,
+    created_by character varying(255),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_investments (
+    investment_id uuid DEFAULT uuid_generate_v4() NOT NULL,  
+    investment_nk_id integer NOT NULL,
+    funding_round_id uuid,
+    funded_object_id uuid,
+    investor_object_id uuid,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE public.fct_ipos (
+    ipo_id  uuid DEFAULT uuid_generate_v4() NOT NULL,
+    ipo_nk_id character varying(255) NOT NULL,
+    object_id uuid,
+    valuation_amount numeric(15,2),
+    valuation_currency_code character varying(3),
+    raised_amount numeric(15,2),
+    raised_currency_code character varying(3),
+    public_at uuid,
+    stock_symbol uuid,
+    source_url text,
+    source_description text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE public.fct_person_relationship (
+    person_relationship_id uuid DEFAULT uuid_generate_v4() NOT NULL,  
+    relationship_nk_id integer NOT NULL,
+    person_id uuid,
+    relationship_object_id uuid,
+    investor_object_id uuid,
+    start_at uuid,
+    end_at uuid,
+    is_past boolean,   
+    "sequence" character varying(300),
+    title character varying(300),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
