@@ -91,7 +91,7 @@ COMMIT;
 DROP TABLE if exists dim_time;
 
 CREATE TABLE dim_time (
-    time_id	INT UNIQUE,
+    time_id	INT,
     time_actual	VARCHAR(512),
     hours_24	INT,
     hours_12	INT,
@@ -1542,20 +1542,20 @@ INSERT INTO dim_time (time_id, time_actual, hours_24, hours_12, hour_minutes, da
 INSERT INTO dim_time (time_id, time_actual, hours_24, hours_12, hour_minutes, day_minutes, day_time_name, day_night) VALUES ('2358', '23:58:00', '23', '11', '58', '1438', 'PM', 'Night');
 INSERT INTO dim_time (time_id, time_actual, hours_24, hours_12, hour_minutes, day_minutes, day_time_name, day_night) VALUES ('2359', '23:59:00', '23', '11', '59', '1439', 'PM', 'Night');
 
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-
 CREATE TABLE public.dim_term_code (
-    term_code_id  uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    term_code_id  uuid DEFAULT uuid_generate_v4() NOT NULL,
     term_code character varying(255));
   
 CREATE TABLE public.dim_stock_symbol (
-    stock_symbol_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    stock_symbol_id uuid DEFAULT uuid_generate_v4() NOT NULL,
     stock_symbol character varying(255));
   
 
 CREATE TABLE public.dim_company (
-    company_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    company_id uuid DEFAULT uuid_generate_v4() NOT NULL,
     company_nk_id integer NOT NULL,
     object_id character varying(255),
     description text,
@@ -1573,7 +1573,7 @@ CREATE TABLE public.dim_company (
 );
 
 CREATE TABLE public.dim_person (
-    person_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    person_id uuid DEFAULT uuid_generate_v4() NOT NULL,
     person_nk_id integer NOT NULL,
     first_name character varying(255),
     last_name character varying(255),
@@ -1584,14 +1584,14 @@ CREATE TABLE public.dim_person (
 
 
 CREATE TABLE public.fct_acquisition (
-    acquisition_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    acquisition_id uuid DEFAULT uuid_generate_v4() NOT NULL,
     acquisition_nk_id integer NOT NULL,
     acquiring_object_id uuid,
     acquired_object_id uuid,
     term_code_id uuid,
     price_amount numeric(15,2),
     price_currency_code character varying(3),
-    acquired_at int,
+    acquired_at uuid,
     source_url text,
     source_description text,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
@@ -1600,11 +1600,11 @@ CREATE TABLE public.fct_acquisition (
 
 
 CREATE TABLE public.fct_funds (
-    fund_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    fund_id uuid DEFAULT uuid_generate_v4() NOT NULL,
     fund_nk_id character varying(255) NOT NULL,
     object_id uuid,
     name character varying(255),
-    funded_at int,
+    funded_at uuid,
     raised_amount numeric(15,2),
     raised_currency_code character varying(3),
     source_url text,
@@ -1615,10 +1615,10 @@ CREATE TABLE public.fct_funds (
 
 
 CREATE TABLE public.fct_funding_rounds (
-    funding_round_id  uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    funding_round_id  uuid DEFAULT uuid_generate_v4() NOT NULL,
     funding_round_nk_id integer NOT NULL,
     object_id uuid,
-    funded_at int,
+    funded_at uuid,
     funding_round_type character varying(255),
     funding_round_code character varying(255),
     raised_amount_usd numeric(15,2),
@@ -1642,7 +1642,7 @@ CREATE TABLE public.fct_funding_rounds (
 
 
 CREATE TABLE public.fct_investments (
-    investment_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,  
+    investment_id uuid DEFAULT uuid_generate_v4() NOT NULL,  
     investment_nk_id integer NOT NULL,
     funding_round_id uuid,
     funded_object_id uuid,
@@ -1653,14 +1653,14 @@ CREATE TABLE public.fct_investments (
 
 
 CREATE TABLE public.fct_ipos (
-    ipo_id  uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    ipo_id  uuid DEFAULT uuid_generate_v4() NOT NULL,
     ipo_nk_id character varying(255) NOT NULL,
     object_id uuid,
     valuation_amount numeric(15,2),
     valuation_currency_code character varying(3),
     raised_amount numeric(15,2),
     raised_currency_code character varying(3),
-    public_at int,
+    public_at uuid,
     stock_symbol uuid,
     source_url text,
     source_description text,
@@ -1669,20 +1669,86 @@ CREATE TABLE public.fct_ipos (
 );
 
 CREATE TABLE public.fct_person_relationship (
-    person_relationship_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,  
+    person_relationship_id uuid DEFAULT uuid_generate_v4() NOT NULL,  
     relationship_nk_id integer NOT NULL,
     person_id uuid,
     relationship_object_id uuid,
     investor_object_id uuid,
-    start_at int,
-    end_at int,
+    start_at uuid,
+    end_at uuid,
     is_past boolean,   
     "sequence" character varying(300),
     title character varying(300),
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
-    
+
+
+
+
+ALTER TABLE ONLY public.fct_acquisition
+    ADD CONSTRAINT acquisition_fk FOREIGN KEY (acquiring_object_id) REFERENCES public.dim_company(company_id);
+
+
+--
+-- Name: acquisition acquisition_fk_1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.acquisition
+    ADD CONSTRAINT acquisition_fk_1 FOREIGN KEY (acquired_object_id) REFERENCES public.company(object_id);
+
+
+--
+-- Name: funding_rounds funding_rounds_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.funding_rounds
+    ADD CONSTRAINT funding_rounds_fk FOREIGN KEY (object_id) REFERENCES public.company(object_id);
+
+
+--
+-- Name: funds funds_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.funds
+    ADD CONSTRAINT funds_fk FOREIGN KEY (object_id) REFERENCES public.company(object_id);
+
+
+--
+-- Name: investments investments_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.investments
+    ADD CONSTRAINT investments_fk FOREIGN KEY (funded_object_id) REFERENCES public.company(object_id);
+
+
+--
+-- Name: investments investments_fk_2; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.investments
+    ADD CONSTRAINT investments_fk_2 FOREIGN KEY (investor_object_id) REFERENCES public.company(object_id);
+
+
+--
+-- Name: investments investments_fk_3; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.investments
+    ADD CONSTRAINT investments_fk_3 FOREIGN KEY (funding_round_id) REFERENCES public.funding_rounds(funding_round_id);
+
+
+--
+-- Name: ipos ipos_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ipos
+    ADD CONSTRAINT ipos_fk FOREIGN KEY (object_id) REFERENCES public.company(object_id);
+
+
+
+
+
 --
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
@@ -1694,63 +1760,3 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-ALTER TABLE ONLY public.fct_acquisition
-    ADD CONSTRAINT acquisition_fk FOREIGN KEY (acquiring_object_id) REFERENCES public.dim_company(company_id);
-
-
-ALTER TABLE ONLY public.fct_acquisition
-    ADD CONSTRAINT acquisition_fk_2 FOREIGN KEY (acquired_object_id) REFERENCES public.dim_company(company_id);
-
-ALTER TABLE ONLY public.fct_acquisition
-    ADD CONSTRAINT acquisition_fk_3 FOREIGN KEY (term_code_id) REFERENCES public.dim_term_code(term_code_id);
-
-ALTER TABLE ONLY public.fct_acquisition
-    ADD CONSTRAINT acquisition_fk_4 FOREIGN KEY (acquired_at) REFERENCES public.dim_date(date_id);
-
-ALTER TABLE ONLY public.fct_funds
-    ADD CONSTRAINT funds_fk FOREIGN KEY (object_id) REFERENCES public.dim_company(company_id);
-
-
-ALTER TABLE ONLY public.fct_funds
-    ADD CONSTRAINT funds_fk_2 FOREIGN KEY (funded_at) REFERENCES public.dim_date(date_id);
-
-ALTER TABLE ONLY public.fct_funding_rounds
-    ADD CONSTRAINT fund_rounds_fk FOREIGN KEY (object_id) REFERENCES public.dim_company(company_id);
-
-
-ALTER TABLE ONLY public.fct_funding_rounds
-    ADD CONSTRAINT fund_rounds_fk_2 FOREIGN KEY (funded_at) REFERENCES public.dim_date(date_id);
-
-ALTER TABLE ONLY public.fct_ipos
-    ADD CONSTRAINT ipos_fk FOREIGN KEY (object_id) REFERENCES public.dim_company(company_id);
-
-
-ALTER TABLE ONLY public.fct_ipos
-    ADD CONSTRAINT ipos_2 FOREIGN KEY (public_at) REFERENCES public.dim_date(date_id);
-
-ALTER TABLE ONLY public.fct_ipos
-    ADD CONSTRAINT ipos_3 FOREIGN KEY (stock_symbol) REFERENCES public.dim_stock_symbol(stock_symbol_id);
-
-ALTER TABLE ONLY public.fct_investments
-    ADD CONSTRAINT investments_fk FOREIGN KEY (funded_object_id) REFERENCES public.dim_company(company_id);
-
-
-ALTER TABLE ONLY public.fct_investments
-    ADD CONSTRAINT investments_fk_2 FOREIGN KEY (investor_object_id) REFERENCES public.dim_company(company_id);
-
-ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk FOREIGN KEY (person_id) REFERENCES public.dim_person(person_id);
-
-
-ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk_2 FOREIGN KEY (relationship_object_id) REFERENCES public.dim_company(company_id);
-
-ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk_3 FOREIGN KEY (investor_object_id) REFERENCES public.dim_company(company_id);
-
-ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk_4 FOREIGN KEY (start_at) REFERENCES public.dim_time(time_id);
-
-
-ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk_5 FOREIGN KEY (end_at) REFERENCES public.dim_time(time_id);
