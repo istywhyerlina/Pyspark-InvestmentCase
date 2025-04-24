@@ -1572,9 +1572,9 @@ CREATE TABLE public.dim_company (
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE public.dim_person (
-    person_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
-    person_nk_id integer NOT NULL,
+CREATE TABLE public.dim_people (
+    people_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
+    people_nk_id integer NOT NULL,
     first_name character varying(255),
     last_name character varying(255),
     birthplace character varying(255),
@@ -1671,7 +1671,7 @@ CREATE TABLE public.fct_ipos (
 CREATE TABLE public.fct_person_relationship (
     person_relationship_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,  
     relationship_nk_id integer NOT NULL,
-    person_id uuid,
+    people_id uuid,
     relationship_object_id uuid,
     investor_object_id uuid,
     start_at int,
@@ -1738,8 +1738,11 @@ ALTER TABLE ONLY public.fct_investments
 ALTER TABLE ONLY public.fct_investments
     ADD CONSTRAINT investments_fk_2 FOREIGN KEY (investor_object_id) REFERENCES public.dim_company(company_id);
 
+ALTER TABLE ONLY public.fct_investments
+    ADD CONSTRAINT investments_fk_3 FOREIGN KEY (funding_round_id) REFERENCES public.fct_funding_rounds(funding_round_id);
+
 ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk FOREIGN KEY (person_id) REFERENCES public.dim_person(person_id);
+    ADD CONSTRAINT person_rl_fk FOREIGN KEY (people_id) REFERENCES public.dim_people(people_id);
 
 
 ALTER TABLE ONLY public.fct_person_relationship

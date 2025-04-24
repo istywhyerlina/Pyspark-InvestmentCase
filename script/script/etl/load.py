@@ -57,27 +57,28 @@ def load_stg(data,table_name:str,step="Data Staging",process="Load",spark=spark,
 
 def load_dwh(data,table_name:str,step="Data Warehouse",process="Load",spark=spark,source=""):
     try:
-        _,_,cp_stg,_=connection_properties()
-        _,_,stg_url,_= db_connection()
+        _,_,cp_dwh,_=connection_properties()
+        _,_,dwh_url,_= db_connection()
 
-        # Truncate the target table (ensure data integrity by removing old records before loading new data)
-        truncate_sql = f"TRUNCATE TABLE {table_name} CASCADE"
-        pyspark.pandas.read_sql(truncate_sql,stg_url)
-        # Use the jdbc connection to execute the SQL truncate statement
-        truncate_df = pyspark.sql.SparkSession.builder.getOrCreate().read \
-            .format("jdbc") \
-            .option("url", stg_url) \
-            .option("dbtable", f"({truncate_sql}) AS trunc_query") \
-            .option("user", "postgres") \
-            .option("password", "cobapassword") \
-            .load()
-
-        log_success(f"===== Truncated table {table_name} successfully =====")      
+        print(f"===== Get only new data =====")
+        primary_key={"dim_term_code":"term_code",'dim_stock_symbol':'stock_symbol','dim_company':'company_nk_id','dim_people':'people_nk_id','fct_person_relationship':'relationship_nk_id','fct_acquisition':'acquisition_nk_id','fct_funds':'fund_nk_id','fct_investments':'investment_nk_id','fct_ipos':'ipo_nk_id','fct_funding_rounds':'funding_round_nk_id'}
+        process="Check New Data"
+        data_in_dwh=extract_db_dwh(table_name,step,process)
+        #data_in_dwh.show()
+        #data.show()
+        
+        new_data=data.join(data_in_dwh, data[f'{primary_key[table_name]}']==data_in_dwh[f'{primary_key[table_name]}'],"leftanti")
+        
+        
+        #new_data.show()
+        
+        print(f"===== Already got only New Data  =====")
+      
 
         print(f"===== Start Loading {table_name} new data =====")
  
         
-        new_data.write.jdbc(url=stg_url,table=table_name,mode="append",properties=cp_stg)
+        new_data.write.jdbc(url=dwh_url,table=table_name,mode="append",properties=cp_dwh)
         process="Load"
         log_success(step,process,source,table_name)
         print(f"===== Success Loading {table_name} new data =====")

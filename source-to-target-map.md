@@ -30,7 +30,7 @@ target : table dim_company
 | Source Column   | Target Column   |Transformation |
 |---------------- |---------------- |---------------|
 | uuid generated  | `company_id`    |generated  uuid|
-| `office_id`     | `company_nk_id` |---------------|
+| `office_id`     | `company_nk_id` |----rename-----|
 | `object_id`     | `object_id`     |---------------|
 | `description`   | `description`   |---------------|
 | `region`        | `region`        |---------------|
@@ -55,7 +55,7 @@ target : table dim_people
 | Source Column                 | Target Column      | Transformation                                                   |
 |--------------------------------|-------------------|-----------------------------------------------------------------|
 | uuid generated             | `people_id`                     | -                                                     |
-| `people_id`            | `people_nk_id`                  | -                                                     |
+| `people_id`            | `people_nk_id`                  | rename, cast to int                                                     |
 | `first_name`            | `first_name`                  | -                                                     |
 | `last_name`            | `last_name`                  | -                                                     |
 | `birthplace`            | `birthplace`                  | -                                                     |
