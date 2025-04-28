@@ -1575,6 +1575,7 @@ CREATE TABLE public.dim_company (
 CREATE TABLE public.dim_people (
     people_id uuid DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
     people_nk_id integer NOT NULL,
+    object_id character varying(255),
     first_name character varying(255),
     last_name character varying(255),
     birthplace character varying(255),
@@ -1673,7 +1674,6 @@ CREATE TABLE public.fct_person_relationship (
     relationship_nk_id integer NOT NULL,
     people_id uuid,
     relationship_object_id uuid,
-    investor_object_id uuid,
     start_at int,
     end_at int,
     is_past boolean,   
@@ -1748,12 +1748,10 @@ ALTER TABLE ONLY public.fct_person_relationship
 ALTER TABLE ONLY public.fct_person_relationship
     ADD CONSTRAINT person_rl_fk_2 FOREIGN KEY (relationship_object_id) REFERENCES public.dim_company(company_id);
 
-ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk_3 FOREIGN KEY (investor_object_id) REFERENCES public.dim_company(company_id);
 
 ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk_4 FOREIGN KEY (start_at) REFERENCES public.dim_time(time_id);
+    ADD CONSTRAINT person_rl_fk_4 FOREIGN KEY (start_at) REFERENCES public.dim_date(date_id);
 
 
 ALTER TABLE ONLY public.fct_person_relationship
-    ADD CONSTRAINT person_rl_fk_5 FOREIGN KEY (end_at) REFERENCES public.dim_time(time_id);
+    ADD CONSTRAINT person_rl_fk_5 FOREIGN KEY (end_at) REFERENCES public.dim_date(date_id);

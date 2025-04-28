@@ -179,8 +179,8 @@ target : table fct_person_relationship
 | `person_id`            | `person_id`                  | -                                                     |
 | `person_id`, `person_object_id`| `person_id`|lookup to person_id in fct_people based on person_object_id|
 | `relationship_object_id` , `company_id`            | `relationship_object_id` | lookup to company_id in dim_company based on company_nk_id |
-| `start_at`, `time_id`          | `start_at`          | lookup to time_id based on start_at             |
-| `end_at`, `time_id`          | `end_at`          | lookup to time_id based on end_at             |
+| `start_at`, `date_id`          | `start_at`          | lookup to date_id based on start_at             |
+| `end_at`, `date_id`          | `end_at`          | lookup to date_id based on end_at             |
 | `is_past`            | `is_past`                  | Convert To Boolean                                                    |
 `sequence`                  | -                                             |
 `title`                  | -                                                 |
