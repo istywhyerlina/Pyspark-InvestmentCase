@@ -76,7 +76,7 @@ def load_dwh(data,table_name:str,step="Data Warehouse",process="Load",spark=spar
       
 
         print(f"===== Start Loading {table_name} new data =====")
- 
+     
         
         new_data.write.jdbc(url=dwh_url,table=table_name,mode="append",properties=cp_dwh)
         process="Load"

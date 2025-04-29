@@ -36,6 +36,6 @@ log_container_port = 5432
 def connection_properties():
     cp_src={"user":src_user,"password":src_password,"driver":"org.postgresql.Driver"}
     cp_stg={"user":stg_user,"password":stg_password,"driver":"org.postgresql.Driver"}
-    cp_dwh={"user":dwh_user,"password":dwh_password,"driver":"org.postgresql.Driver"}
+    cp_dwh={"user":dwh_user,"password":dwh_password,"driver":"org.postgresql.Driver", "stringtype":"unspecified"}
     cp_log={"user":log_user,"password":log_password,"driver":"org.postgresql.Driver"}
     return cp_src,cp_stg,cp_dwh, cp_log
