@@ -78,13 +78,10 @@ def extract_db_stg(table_name,step="Data Staging",process="Extract",spark=spark)
 
 def extract_db_dwh(table_name,step="Data Warehouse",process="Extract",spark=spark):
     try:
-        print(f"===== Start Extracting {table_name} data =====")
         _,_,cp_dwh,_=connection_properties()
         _,_,dwh_url,_ = db_connection()
         df_metadata=spark.read.jdbc(dwh_url, table=table_name, properties=cp_dwh)
         log_success(step,process,table_name,table_name)
-        print(f"===== Success Extracting {table_name} data =====")
         return df_metadata
     except Exception as e:
-        print(f"====== Failed to Extract Data {table_name} ======,\n {e}")
         log_error(step,process,table_name,table_name,str(e))
